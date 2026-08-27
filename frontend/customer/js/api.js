@@ -136,3 +136,17 @@ document.addEventListener('DOMContentLoaded', () => {
     Auth.renderNavAuth();
     Cart.updateBadge();
 });
+
+// Order Status Tagline Helper
+function getOrderStatusTagline(status) {
+    const taglines = {
+        'Pending': 'Your order has been received and is awaiting seller confirmation.',
+        'Confirmed': 'Your order is confirmed! The studio is preparing your handcrafted items.',
+        'Processing': 'Your custom pieces are currently being handcrafted in the studio.',
+        'Shipped': 'Your order has been dispatched and is on its way to you.',
+        'Out for Delivery': 'Your parcel is out for delivery today.',
+        'Delivered': 'Your order has been successfully delivered. Enjoy your handcrafted creation!',
+        'Cancelled': 'This order has been cancelled.'
+    };
+    return taglines[status] || `Status updated to ${status}.`;
+}

@@ -89,6 +89,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('id');
 
+        const STATUS_TAGLINES = {
+            'Pending': 'Your order has been received and is awaiting seller confirmation.',
+            'Confirmed': 'Your order has been confirmed! The studio is preparing your handcrafted items.',
+            'Processing': 'Your custom pieces are currently being handcrafted in the studio.',
+            'Shipped': 'Your order has been dispatched and is on its way to you.',
+            'Out for Delivery': 'Your parcel is out for delivery today.',
+            'Delivered': 'Your order has been successfully delivered. Enjoy your handcrafted creation!',
+            'Cancelled': 'This order has been cancelled.'
+        };
+
         async function loadTrackingDetails() {
             if (!orderId) {
                 window.location.href = 'orders.html';
@@ -111,12 +121,14 @@
 
                     const statuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered'];
                     const currentIdx = statuses.indexOf(o.order_status);
+                    const currentTagline = STATUS_TAGLINES[o.order_status] || 'Your order is progressing smoothly.';
 
                     container.innerHTML = `
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                             <div>
                                 <span class="badge badge-luxury mb-2">Order Tracking</span>
-                                <h2 class="fw-bold text-white mb-0">${o.order_number}</h2>
+                                <h2 class="fw-bold text-white mb-1">${o.order_number}</h2>
+                                <p class="text-info small mb-0"><i class="fas fa-circle-info me-1"></i>${currentTagline}</p>
                             </div>
                             <a href="orders.html" class="btn btn-luxury-outline btn-sm mt-2 mt-md-0">
                                 <i class="fas fa-arrow-left me-1"></i> Back to Orders
@@ -134,18 +146,21 @@
                                             <div class="timeline-icon"><i class="fas fa-check"></i></div>
                                             <h6 class="fw-bold text-white mb-1">Order Placed</h6>
                                             <small class="text-muted">Payment: ${o.payment_method} (${o.payment_status})</small>
+                                            <div class="small text-info mt-1" style="font-size:0.8rem;">Your order has been received and is awaiting seller confirmation.</div>
                                         </div>
 
                                         <div class="timeline-step ${currentIdx >= 1 ? (currentIdx === 1 ? 'active' : 'completed') : ''}">
                                             <div class="timeline-icon"><i class="fas fa-check"></i></div>
                                             <h6 class="fw-bold text-white mb-1">Payment & Order Confirmed</h6>
                                             <small class="text-muted">Verified and acknowledged by seller</small>
+                                            <div class="small text-info mt-1" style="font-size:0.8rem;">Your order has been confirmed! The studio is preparing your handcrafted items.</div>
                                         </div>
 
                                         <div class="timeline-step ${currentIdx >= 2 ? (currentIdx === 2 ? 'active' : 'completed') : ''}">
                                             <div class="timeline-icon"><i class="fas fa-check"></i></div>
                                             <h6 class="fw-bold text-white mb-1">In Studio Production / Packaging</h6>
                                             <small class="text-muted">Custom handcrafted items/services prepared</small>
+                                            <div class="small text-info mt-1" style="font-size:0.8rem;">Your custom pieces are currently being handcrafted in the studio.</div>
                                         </div>
 
                                         <div class="timeline-step ${currentIdx >= 3 ? (currentIdx === 3 ? 'active' : 'completed') : ''}">
@@ -154,12 +169,14 @@
                                             <small class="text-muted">
                                                 ${shipping.courier_name ? `Via ${shipping.courier_name} (AWB: ${shipping.tracking_number || 'N/A'})` : 'Awaiting courier pickup'}
                                             </small>
+                                            <div class="small text-info mt-1" style="font-size:0.8rem;">Your order has been dispatched and is on its way to you.</div>
                                         </div>
 
                                         <div class="timeline-step ${currentIdx >= 4 ? 'completed' : ''}">
                                             <div class="timeline-icon"><i class="fas fa-check"></i></div>
                                             <h6 class="fw-bold text-white mb-1">Delivered & Completed</h6>
                                             <small class="text-muted">Package successfully handed over</small>
+                                            <div class="small text-info mt-1" style="font-size:0.8rem;">Your order has been successfully delivered. Enjoy your handcrafted creation!</div>
                                         </div>
                                     </div>
                                 </div>
@@ -199,7 +216,7 @@
                                     </div>
                                     <div class="d-flex justify-content-between text-success small">
                                         <span>Discount</span>
-                                        <span>-₹${parseFloat(o.discount).toFixed(2)}</span>
+                                        <span class="text-white">-₹${parseFloat(o.discount).toFixed(2)}</span>
                                     </div>
                                     <div class="d-flex justify-content-between fs-5 fw-bold text-white pt-2 mt-2 border-top" style="border-color: var(--border-glass) !important;">
                                         <span>Total Amount</span>

@@ -14,6 +14,17 @@ MASTER_ADMIN_EMAIL = 'eshwarie633@gmail.com'
 # In-memory OTP store for password resets (email -> {otp, user_id, created_at})
 OTP_STORE = {}
 
+# Status Taglines Mapping
+STATUS_TAGLINES = {
+    'Pending': 'Your order has been received and is awaiting seller confirmation.',
+    'Confirmed': 'Your order has been confirmed! The studio is preparing your handcrafted items.',
+    'Processing': 'Your custom pieces are currently being handcrafted in the studio.',
+    'Shipped': 'Your order has been dispatched and is on its way to you.',
+    'Out for Delivery': 'Your parcel is out for delivery today.',
+    'Delivered': 'Your order has been successfully delivered. Enjoy your handcrafted creation!',
+    'Cancelled': 'This order has been cancelled.'
+}
+
 # ================================================================
 # HEALTH CHECK
 # ================================================================
@@ -396,13 +407,15 @@ def checkout(current_user):
         'status': 'Processing'
     }).execute()
 
+    initial_tagline = STATUS_TAGLINES.get(initial_order_status, f"Your order {order_num} has been placed via {payment_method}.")
+
     db.table('notifications').insert({
         'user_id': current_user['id'],
-        'title': 'Order Placed Successfully!',
-        'message': f"Your order {order_num} has been placed via {payment_method}."
+        'title': f'Order Placed - {initial_order_status}',
+        'message': f"Order #{order_num}: {initial_tagline}"
     }).execute()
 
-    return jsonify({'success': True, 'order': created_order}), 201
+    return jsonify({'success': True, 'order': created_order, 'tagline': initial_tagline}), 201
 
 
 @api.route('/orders/my-orders', methods=['GET'])
@@ -426,7 +439,10 @@ def get_order_by_id(current_user, order_id):
     if not res.data:
         return jsonify({'success': False, 'message': 'Order not found'}), 404
 
-    return jsonify({'success': True, 'data': res.data}), 200
+    order_data = dict(res.data)
+    order_data['tagline'] = STATUS_TAGLINES.get(order_data.get('order_status'), '')
+
+    return jsonify({'success': True, 'data': order_data}), 200
 
 
 # ================================================================
@@ -559,7 +575,10 @@ def admin_orders(current_user):
     
     if is_master_admin:
         res = db.table('orders').select('*, order_items(*), shipping(*), payments(*), profiles(full_name, email)').order('created_at', desc=True).execute()
-        return jsonify({'success': True, 'data': res.data or []}), 200
+        orders = res.data or []
+        for o in orders:
+            o['tagline'] = STATUS_TAGLINES.get(o.get('order_status'), '')
+        return jsonify({'success': True, 'data': orders}), 200
 
     vendor_prods_res = db.table('products').select('id').eq('seller_id', current_user['id']).execute()
     vendor_prod_ids = set([p['id'] for p in (vendor_prods_res.data or [])])
@@ -584,6 +603,7 @@ def admin_orders(current_user):
             o_copy = dict(o)
             o_copy['order_items'] = o_items
             o_copy['total'] = sum(float(it.get('subtotal', 0)) for it in o_items)
+            o_copy['tagline'] = STATUS_TAGLINES.get(o.get('order_status'), '')
             filtered_orders.append(o_copy)
 
     return jsonify({'success': True, 'data': filtered_orders}), 200
@@ -604,12 +624,31 @@ def update_order_status(current_user, order_id):
     if new_payment_status:
         update_data['payment_status'] = new_payment_status
 
+    tagline = STATUS_TAGLINES.get(new_order_status, f"Your order status is now {new_order_status}.")
+
     if update_data:
-        db.table('orders').update(update_data).eq('id', order_id).execute()
+        res = db.table('orders').update(update_data).eq('id', order_id).execute()
         if new_payment_status:
             db.table('payments').update({'status': new_payment_status}).eq('order_id', order_id).execute()
 
-    return jsonify({'success': True, 'message': 'Order updated successfully'}), 200
+        # Insert notification with status tagline to customer
+        if new_order_status and res.data:
+            order = res.data[0]
+            try:
+                db.table('notifications').insert({
+                    'user_id': order['user_id'],
+                    'title': f"Order {new_order_status}",
+                    'message': f"Order #{order.get('order_number')}: {tagline}"
+                }).execute()
+            except Exception:
+                pass
+
+    return jsonify({
+        'success': True,
+        'message': 'Order updated successfully',
+        'status': new_order_status,
+        'tagline': tagline
+    }), 200
 
 
 @api.route('/admin/orders/<order_id>/shipping', methods=['PUT'])
@@ -629,9 +668,27 @@ def update_shipping(current_user, order_id):
         'status': 'Shipped'
     }).eq('order_id', order_id).execute()
 
-    db.table('orders').update({'order_status': 'Shipped'}).eq('id', order_id).execute()
+    res = db.table('orders').update({'order_status': 'Shipped'}).eq('id', order_id).execute()
 
-    return jsonify({'success': True, 'message': 'Shipping updated and order marked Shipped'}), 200
+    tagline = STATUS_TAGLINES.get('Shipped', 'Your order has been dispatched and is on its way to you.')
+
+    if res.data:
+        order = res.data[0]
+        try:
+            db.table('notifications').insert({
+                'user_id': order['user_id'],
+                'title': "Order Shipped",
+                'message': f"Order #{order.get('order_number')}: {tagline} (Courier: {courier}, Tracking ID: {tracking})"
+            }).execute()
+        except Exception:
+            pass
+
+    return jsonify({
+        'success': True,
+        'message': 'Shipping updated and order marked Shipped',
+        'status': 'Shipped',
+        'tagline': tagline
+    }), 200
 
 
 # ================================================================

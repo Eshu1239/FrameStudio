@@ -140,6 +140,16 @@
     <script>
         let selectedStars = 5;
 
+        const STATUS_TAGLINES = {
+            'Pending': 'Your order has been received and is awaiting seller confirmation.',
+            'Confirmed': 'Your order has been confirmed! The studio is preparing your handcrafted items.',
+            'Processing': 'Your custom pieces are currently being handcrafted in the studio.',
+            'Shipped': 'Your order has been dispatched and is on its way to you.',
+            'Out for Delivery': 'Your parcel is out for delivery today.',
+            'Delivered': 'Your order has been successfully delivered. Enjoy your handcrafted creation!',
+            'Cancelled': 'This order has been cancelled.'
+        };
+
         function showFlashcard(message, type = 'success') {
             const container = document.getElementById('flashcardContainer');
             const icons = {
@@ -234,6 +244,7 @@
                         const dateFormatted = new Date(order.created_at).toLocaleDateString('en-IN', {
                             day: 'numeric', month: 'short', year: 'numeric'
                         });
+                        const currentTagline = STATUS_TAGLINES[order.order_status] || 'Your handcrafted items/sessions are being processed.';
 
                         return `
                             <div class="order-card">
@@ -289,13 +300,19 @@
                                         </div>
                                         <div>
                                             <div class="fw-bold text-white">Status: <span class="text-info text-uppercase">${order.order_status}</span></div>
-                                            <div class="small text-light" style="opacity:0.85;">
+                                            <div class="small text-info mt-1 fst-italic">${currentTagline}</div>
+                                            <div class="small text-light mt-1" style="opacity:0.85;">
                                                 ${shipping.tracking_number ? `Dispatched via <strong>${shipping.courier_name}</strong> (AWB: <span class="text-warning">${shipping.tracking_number}</span>)` : 'Your handcrafted items/sessions are being prepared by the studio.'}
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="small text-light" style="opacity:0.85;">
-                                        Deliver to: <strong>${order.shipping_address ? (order.shipping_address.city || 'Standard Address') : 'Standard Delivery'}</strong>
+                                    <div class="d-flex flex-column align-items-md-end gap-2">
+                                        <div class="small text-light" style="opacity:0.85;">
+                                            Deliver to: <strong>${order.shipping_address ? (order.shipping_address.city || 'Standard Address') : 'Standard Delivery'}</strong>
+                                        </div>
+                                        <a href="order-tracking.html?id=${order.id}" class="btn btn-luxury-outline btn-sm">
+                                            <i class="fas fa-location-dot me-1"></i> Live Tracker
+                                        </a>
                                     </div>
                                 </div>
                             </div>
