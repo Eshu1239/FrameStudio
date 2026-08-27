@@ -1,0 +1,333 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+
+:root {
+    /* Pure Contrast Luxury Theme */
+    --bg-base: #06080d;
+    --bg-surface: #0e131f;
+    --bg-card: rgba(16, 22, 36, 0.88);
+    --bg-card-hover: rgba(23, 32, 54, 0.96);
+    
+    /* Neon Micro-Accents */
+    --primary: #6366f1;
+    --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d946ef 100%);
+    --accent-teal: #00f2fe;
+    --accent-emerald: #10b981;
+    
+    /* Highest Contrast Text Hierarchy */
+    --text-pure: #ffffff;
+    --text-high: #f8fafc;
+    --text-mid: #e2e8f0;
+    --text-muted: #94a3b8;
+    
+    /* High Definition Glass Borders */
+    --border-glass: rgba(255, 255, 255, 0.14);
+    --border-focus: #00f2fe;
+    --border-glow: rgba(99, 102, 241, 0.5);
+
+    --font-heading: 'Syne', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+
+    /* FrameStudio System Properties */
+    --fs-bg: #070a13;
+    --fs-card-bg: #0d1322;
+    --fs-text: #ffffff;
+    --fs-border: rgba(255, 255, 255, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-base);
+    /* High-End Deep Indigo Ambient Mesh + Grid Matrix */
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 90% 15%, rgba(217, 70, 239, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(0, 242, 254, 0.14) 0%, transparent 50%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+    color: var(--text-high);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6, .brand-font {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    color: var(--text-pure) !important;
+}
+
+p, span, label, input, select {
+    font-family: var(--font-body);
+}
+
+/* Navigation Bar */
+.glass-nav {
+    background: rgba(6, 8, 13, 0.9) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+/* Studio Glass Card */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(99, 102, 241, 0.35);
+    transform: translateY(-4px);
+}
+
+/* Buttons */
+.btn-luxury {
+    background: var(--primary-gradient);
+    color: #ffffff !important;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 0.8rem 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-luxury:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(217, 70, 239, 0.6);
+    filter: brightness(1.15);
+}
+
+.btn-luxury-outline {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-pure) !important;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0.75rem 1.4rem;
+    border: 1px solid var(--border-glass);
+    transition: all 0.25s ease;
+}
+
+.btn-luxury-outline:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent-teal);
+    color: var(--accent-teal) !important;
+}
+
+/* Form Controls */
+.form-label-high {
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.form-control-luxury {
+    background: #0b0f19 !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+
+.form-control-luxury option {
+    background-color: #0b0f19;
+    color: #ffffff;
+}
+
+.form-control-luxury::placeholder {
+    color: #94a3b8 !important;
+}
+
+.form-control-luxury:focus {
+    border-color: var(--accent-teal) !important;
+    box-shadow: 0 0 16px rgba(0, 242, 254, 0.4) !important;
+    background: #0f1422 !important;
+}
+
+/* Badges */
+.badge-luxury {
+    background: rgba(99, 102, 241, 0.25);
+    color: #e0e7ff;
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 50px;
+}
+
+/* Empty State Banner */
+.empty-state-box {
+    background: rgba(14, 19, 31, 0.9);
+    border: 2px dashed rgba(99, 102, 241, 0.4);
+    border-radius: 24px;
+    padding: 4.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
+
+.empty-state-box h4 {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.6rem;
+    margin-top: 1.2rem;
+}
+
+.empty-state-box p {
+    color: #e2e8f0 !important;
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin: 0.75rem auto 1.75rem auto;
+    line-height: 1.6;
+}
+
+/* Product Card Elements */
+.product-img-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    height: 250px;
+}
+
+.product-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.glass-card:hover .product-img-wrap img {
+    transform: scale(1.06);
+}
+
+/* ================================================================
+   ULTRA-HIGH CONTRAST ADMIN & NAVIGATION TABS
+   ================================================================ */
+#adminTabs .nav-link,
+#adminTabs .btn,
+.nav-pills .nav-link,
+.nav-pills .btn {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 1.6rem !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    opacity: 1 !important;
+    transition: all 0.25s ease-in-out;
+}
+
+#adminTabs .nav-link:hover,
+#adminTabs .btn:hover {
+    background: #1e293b !important;
+    color: #00f2fe !important;
+    border-color: #00f2fe !important;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.4) !important;
+}
+
+#adminTabs .nav-link.active,
+#adminTabs .btn.active,
+.nav-pills .show > .nav-link {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d946ef 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6) !important;
+    font-weight: 800 !important;
+}
+
+#adminTabs .nav-link i,
+#adminTabs .btn i {
+    color: inherit !important;
+}
+
+/* ================================================================
+   HAMBURGER DRAWER STYLING
+   ================================================================ */
+.hamburger-btn {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 0.5rem 0.85rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    background: #1e293b;
+    border-color: #00f2fe;
+    color: #00f2fe;
+}
+
+.offcanvas-luxury {
+    background: #0d1322 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    width: 340px !important;
+}
+
+.drawer-profile-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 1.25rem;
+}
+
+.drawer-avatar-preview {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00f2fe;
+}
+
+.drawer-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.85rem 1rem;
+    color: #e2e8f0;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.drawer-menu-item:hover {
+    background: rgba(0, 242, 254, 0.1);
+    color: #00f2fe;
+}
+
+.drawer-menu-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}

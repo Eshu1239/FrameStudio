@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders & Bookings | FrameStudio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .page-subtitle { color: #cbd5e1 !important; font-size: 1rem; font-weight: 500; }
+        .order-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+        .order-header-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+        }
+        .order-item-thumbnail {
+            width: 75px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .status-tracker-box {
+            background: rgba(0, 242, 254, 0.06);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+        }
+        .star-rating-select i {
+            font-size: 1.8rem;
+            color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .star-rating-select i.active,
+        .star-rating-select i:hover,
+        .star-rating-select i:hover ~ i {
+            color: #facc15;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="flashcardContainer"></div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav sticky-top py-3">
+        <div class="container">
+            <button class="hamburger-btn me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#fsHamburgerDrawer">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="index.html">
+                <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+                    <i class="fas fa-store text-white"></i>
+                </span>
+                <span class="fs-4 fw-bold brand-font">Frame<span style="color:#06b6d4">Studio</span></span>
+            </a>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <a href="shop.html" class="nav-link px-2 text-white fw-semibold">Catalog</a>
+                <a href="cart.html" class="btn btn-luxury-outline position-relative px-3 py-2">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+                </a>
+                <ul class="navbar-nav" id="navAuthLinks"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-5">
+            <div>
+                <h3 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                    <i class="fas fa-box-open text-primary"></i> My Orders & Bookings
+                </h3>
+                <p class="page-subtitle mb-0">Track live orders, rate creations, and view receipts</p>
+            </div>
+            <a href="shop.html" class="btn btn-luxury-outline px-4 py-2 text-nowrap">
+                <i class="fas fa-cart-shopping me-2"></i> Continue Shopping
+            </a>
+        </div>
+
+        <div id="ordersContainer" class="d-flex flex-column gap-4">
+            <div class="text-center py-5">
+                <div class="spinner-border text-info mb-3"></div>
+                <div class="text-white fw-bold">Loading your orders...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Rating Tile Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-card text-white border-0" style="background:#0d1322; border: 1px solid rgba(0,242,254,0.3) !important;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-star text-warning me-2"></i>Write a Customer Review</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="reviewForm">
+                        <input type="hidden" id="revProductId">
+                        <input type="hidden" id="revOrderId">
+                        
+                        <div class="text-center mb-3">
+                            <h6 class="text-white fw-bold" id="revProductName">Item Name</h6>
+                            <div class="star-rating-select d-flex justify-content-center gap-2 my-3" id="starSelector">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star active" data-rating="5"></i>
+                            </div>
+                            <input type="hidden" id="revRatingVal" value="5">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label form-label-high">Your Experience & Feedback</label>
+                            <textarea id="revComment" class="form-control form-control-luxury" rows="3" placeholder="Share your thoughts on the artisanal quality, delivery, or session experience..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-luxury w-100 py-3 fw-bold">
+                            <i class="fas fa-paper-plane me-1"></i> Submit Verified Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/drawer.js"></script>
+    <script>
+        let selectedStars = 5;
+
+        function showFlashcard(message, type = 'success') {
+            const container = document.getElementById('flashcardContainer');
+            const icons = {
+                success: '<i class="fas fa-check-circle text-success fs-5"></i>',
+                danger: '<i class="fas fa-circle-exclamation text-danger fs-5"></i>',
+                info: '<i class="fas fa-info-circle text-info fs-5"></i>'
+            };
+            const card = document.createElement('div');
+            card.className = `flashcard-toast ${type}`;
+            card.innerHTML = `
+                <div>${icons[type] || icons.info}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold small text-uppercase" style="letter-spacing:0.05em; color:${type==='success'?'#34d399':'#f87171'}">
+                        ${type==='success'?'Success':'Notice'}
+                    </div>
+                    <div class="small text-white mt-1">${message}</div>
+                </div>
+            `;
+            container.appendChild(card);
+            setTimeout(() => { card.style.opacity = '0'; setTimeout(() => card.remove(), 300); }, 3500);
+        }
+
+        function setupStarSelector() {
+            const stars = document.querySelectorAll('#starSelector i');
+            stars.forEach(s => {
+                s.addEventListener('click', () => {
+                    const r = parseInt(s.getAttribute('data-rating'));
+                    selectedStars = r;
+                    document.getElementById('revRatingVal').value = r;
+                    stars.forEach(st => {
+                        const stR = parseInt(st.getAttribute('data-rating'));
+                        if (stR <= r) st.classList.add('active');
+                        else st.classList.remove('active');
+                    });
+                });
+            });
+        }
+
+        function openReviewModal(prodId, prodName, orderId) {
+            document.getElementById('revProductId').value = prodId;
+            document.getElementById('revOrderId').value = orderId;
+            document.getElementById('revProductName').innerText = prodName;
+            document.getElementById('revComment').value = '';
+            new bootstrap.Modal(document.getElementById('reviewModal')).show();
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                product_id: document.getElementById('revProductId').value,
+                order_id: document.getElementById('revOrderId').value,
+                rating: parseInt(document.getElementById('revRatingVal').value),
+                comment: document.getElementById('revComment').value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+                    showFlashcard('Thank you! Your verified review has been published.', 'success');
+                } else {
+                    showFlashcard(data.message || 'Failed to submit review.', 'danger');
+                }
+            } catch (err) {
+                showFlashcard('Server connection error.', 'danger');
+            }
+        });
+
+        async function loadMyOrders() {
+            const user = Auth.checkAuth(true);
+            if (!user) return;
+            const container = document.getElementById('ordersContainer');
+
+            try {
+                const res = await fetch(`${API_BASE}/orders/my-orders`, {
+                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success && data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map(order => {
+                        const items = order.order_items || [];
+                        const shipping = (order.shipping && order.shipping[0]) || {};
+                        const dateFormatted = new Date(order.created_at).toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                        });
+
+                        return `
+                            <div class="order-card">
+                                <div class="order-header-box d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                                    <div class="d-flex flex-wrap align-items-center gap-3">
+                                        <div>
+                                            <div class="small text-light" style="opacity:0.8;">ORDER PLACED</div>
+                                            <div class="fw-bold text-white">${dateFormatted}</div>
+                                        </div>
+                                        <div class="vr bg-secondary d-none d-md-block"></div>
+                                        <div>
+                                            <div class="small text-light" style="opacity:0.8;">ORDER ID</div>
+                                            <div class="fw-bold text-info">${order.order_number}</div>
+                                        </div>
+                                        <div class="vr bg-secondary d-none d-md-block"></div>
+                                        <div>
+                                            <div class="small text-light" style="opacity:0.8;">PAYMENT (${order.payment_method})</div>
+                                            <span class="badge ${order.payment_status === 'Successful' ? 'bg-success' : 'bg-warning text-dark'} small">
+                                                ${order.payment_status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-md-end">
+                                        <div class="small text-light" style="opacity:0.8;">TOTAL AMOUNT</div>
+                                        <div class="fw-bold text-white fs-5">₹${parseFloat(order.total).toFixed(2)}</div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    ${items.map(item => `
+                                        <div class="d-flex align-items-center justify-content-between gap-3 pb-3 border-bottom border-secondary">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img src="${item.product_image || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=300'}" class="order-item-thumbnail" alt="${item.product_name}">
+                                                <div>
+                                                    <h6 class="fw-bold text-white mb-1">${item.product_name}</h6>
+                                                    <div class="small text-light" style="opacity:0.85;">Quantity: <strong class="text-info">${item.quantity}</strong></div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="fw-bold text-white">₹${parseFloat(item.subtotal).toFixed(2)}</div>
+                                                <button onclick="openReviewModal('${item.product_id}', '${item.product_name.replace(/'/g, "\\'")}', '${order.id}')" class="btn btn-luxury-outline btn-sm">
+                                                    <i class="fas fa-star text-warning me-1"></i> Rate
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <div class="status-tracker-box d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-3 rounded-circle" style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe;">
+                                            <i class="fas fa-truck-fast text-info fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-white">Status: <span class="text-info text-uppercase">${order.order_status}</span></div>
+                                            <div class="small text-light" style="opacity:0.85;">
+                                                ${shipping.tracking_number ? `Dispatched via <strong>${shipping.courier_name}</strong> (AWB: <span class="text-warning">${shipping.tracking_number}</span>)` : 'Your handcrafted items/sessions are being prepared by the studio.'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="small text-light" style="opacity:0.85;">
+                                        Deliver to: <strong>${order.shipping_address ? (order.shipping_address.city || 'Standard Address') : 'Standard Delivery'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="order-card text-center py-5">
+                            <div class="d-inline-flex p-4 rounded-circle mb-3" style="background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3);">
+                                <i class="fas fa-box-open fs-1 text-info"></i>
+                            </div>
+                            <h4 class="fw-bold text-white mb-2">No Orders Placed Yet</h4>
+                            <p class="text-light small mx-auto mb-4" style="max-width: 450px; opacity:0.85;">
+                                You haven't ordered any custom products or booked creator services yet.
+                            </p>
+                            <a href="shop.html" class="btn btn-luxury px-4 py-3 fw-bold">
+                                <i class="fas fa-bag-shopping me-2"></i> Explore Catalog
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="alert alert-danger text-center">Failed to load orders.</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMyOrders();
+            setupStarSelector();
+            const currentUser = Auth.getUser();
+            if (typeof DrawerEngine !== 'undefined') {
+                DrawerEngine.init(currentUser ? currentUser.role : 'customer');
+            }
+        });
+    </script>
+</body>
+</html>

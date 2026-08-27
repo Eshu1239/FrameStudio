@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Dashboard | FrameStudio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../customer/css/style.css">
+    <style>
+        .stat-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            border-radius: 18px !important;
+            padding: 1.4rem !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #00f2fe !important;
+        }
+
+        .stat-label {
+            font-size: 0.82rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.06em !important;
+            display: block !important;
+            margin-bottom: 0.35rem !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .stat-value {
+            font-size: 1.85rem !important;
+            font-weight: 800 !important;
+            margin: 0 !important;
+            line-height: 1.2 !important;
+        }
+
+        .metrics-section-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table.table-custom-dark,
+        table.table-custom-dark > thead,
+        table.table-custom-dark > tbody,
+        table.table-custom-dark > thead > tr,
+        table.table-custom-dark > tbody > tr,
+        table.table-custom-dark > thead > tr > th,
+        table.table-custom-dark > tbody > tr > td {
+            background-color: transparent !important;
+            background: transparent !important;
+            --bs-table-bg: transparent !important;
+            --bs-table-accent-bg: transparent !important;
+            --bs-table-striped-bg: transparent !important;
+            --bs-table-hover-bg: rgba(255, 255, 255, 0.04) !important;
+        }
+
+        table.table-custom-dark th {
+            color: #00f2fe !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.06em !important;
+            border-bottom: 2px solid rgba(0, 242, 254, 0.3) !important;
+            border-top: none !important;
+            padding: 1.1rem 0.9rem !important;
+        }
+
+        table.table-custom-dark td {
+            color: #ffffff !important;
+            font-weight: 500 !important;
+            font-size: 0.95rem !important;
+            padding: 1.1rem 0.9rem !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-top: none !important;
+        }
+
+        .empty-table-text {
+            color: #cbd5e1 !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            padding: 3rem 1rem !important;
+        }
+
+        .admin-nav-tabs .nav-link {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 0.85rem 1.5rem !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .admin-nav-tabs .nav-link:hover {
+            background: #1e293b !important;
+            color: #00f2fe !important;
+            border-color: #00f2fe !important;
+        }
+        .admin-nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d946ef 100%) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5) !important;
+        }
+
+        #flashcardContainer {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1099;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .flashcard-toast {
+            pointer-events: auto;
+            min-width: 320px;
+            max-width: 420px;
+            background: rgba(13, 19, 34, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            color: #ffffff;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
+        }
+
+        .flashcard-toast.success { border-color: #10b981; }
+        .flashcard-toast.danger { border-color: #ef4444; }
+        .flashcard-toast.info { border-color: #00f2fe; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .glass-confirm-dialog {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Flashcard Toast Notifications Hub -->
+    <div id="flashcardContainer"></div>
+
+    <!-- Sticky Navigation with Left Hamburger Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav sticky-top py-3">
+        <div class="container-fluid px-lg-5">
+            <button class="hamburger-btn me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#fsHamburgerDrawer" aria-controls="fsHamburgerDrawer">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="dashboard.html">
+                <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+                    <i class="fas fa-shield-halved text-white"></i>
+                </span>
+                <span class="fs-4 fw-bold brand-font">Studio<span style="color:#06b6d4">Control</span></span>
+            </a>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <span id="userBadgeRole" class="badge px-3 py-2 text-uppercase fw-bold bg-danger">ROLE: ADMIN</span>
+                <a href="../customer/shop.html" target="_blank" class="btn btn-luxury-outline btn-sm">
+                    <i class="fas fa-external-link-alt me-1"></i> Live Storefront
+                </a>
+                <button onclick="Auth.logout()" class="btn btn-luxury-outline btn-sm text-danger border-danger">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-lg-5 py-5">
+        
+        <!-- ROW 1: USER DIRECTORY & COMMUNITY METRICS (STRICTLY ADMIN-ONLY) -->
+        <div id="adminCommunityMetricsBlock" class="d-none">
+            <div class="metrics-section-title">
+                <i class="fas fa-users text-info"></i> FrameStudio Community & Account Metrics
+            </div>
+            <div class="row g-4 mb-5">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="stat-label" style="color: #38bdf8 !important;">Total Platform Users</span>
+                                <h3 class="stat-value text-white" id="statTotalUsers">0</h3>
+                            </div>
+                            <div class="p-3 rounded-circle" style="background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe;">
+                                <i class="fas fa-users fs-4" style="color: #00f2fe;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="stat-label" style="color: #a5b4fc !important;">Registered Customers</span>
+                                <h3 class="stat-value text-white" id="statTotalCustomers">0</h3>
+                            </div>
+                            <div class="p-3 rounded-circle" style="background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1;">
+                                <i class="fas fa-user-tag fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="stat-label" style="color: #f472b6 !important;">Vendors & Agencies</span>
+                                <h3 class="stat-value text-white" id="statTotalVendors">0</h3>
+                            </div>
+                            <div class="p-3 rounded-circle" style="background: rgba(236, 72, 153, 0.2); border: 1px solid #ec4899;">
+                                <i class="fas fa-store fs-4" style="color: #ec4899;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="stat-label" style="color: #fde047 !important;">Pending Vendor Approvals</span>
+                                <h3 class="stat-value" style="color: #facc15 !important;" id="statPendingVendors">0</h3>
+                            </div>
+                            <div class="p-3 rounded-circle" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b;">
+                                <i class="fas fa-user-clock fs-4 text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 2: STORE OPERATIONS & REVENUE -->
+        <div class="metrics-section-title">
+            <i class="fas fa-chart-line text-success"></i> Store Commerce & Order Metrics
+        </div>
+        <div class="row g-4 mb-5">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="stat-label" style="color: #4ade80 !important;">Total Sales Revenue</span>
+                            <h3 class="stat-value text-white" id="statRevenue">₹0.00</h3>
+                        </div>
+                        <div class="p-3 rounded-circle" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981;">
+                            <i class="fas fa-wallet fs-4 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="stat-label" style="color: #c084fc !important;">Total Orders Placed</span>
+                            <h3 class="stat-value text-white" id="statOrders">0</h3>
+                        </div>
+                        <div class="p-3 rounded-circle" style="background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7;">
+                            <i class="fas fa-boxes-packing fs-4" style="color: #c084fc;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="stat-label" style="color: #fde047 !important;">Pending Fulfillment</span>
+                            <h3 class="stat-value" style="color: #facc15 !important;" id="statNewOrders">0</h3>
+                        </div>
+                        <div class="p-3 rounded-circle" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b;">
+                            <i class="fas fa-clock fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="stat-label" style="color: #fca5a5 !important;">Low Stock / Slots</span>
+                            <h3 class="stat-value" style="color: #f87171 !important;" id="statLowStock">0</h3>
+                        </div>
+                        <div class="p-3 rounded-circle" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444;">
+                            <i class="fas fa-triangle-exclamation fs-4 text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills admin-nav-tabs mb-4 gap-3" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabOrders" type="button" role="tab">
+                    <i class="fas fa-receipt"></i> All Orders & Service Bookings
+                </button>
+            </li>
+            <li class="nav-item" id="navItemUsers" role="presentation">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabUsers" type="button" role="tab">
+                    <i class="fas fa-users-gear"></i> Users Directory (Customers & Vendors)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabCatalog" type="button" role="tab">
+                    <i class="fas fa-plus-circle"></i> Manage Catalog & Listings
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- TAB 1: ALL ORDERS -->
+            <div class="tab-pane fade show active" id="tabOrders">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-white mb-0"><i class="fas fa-clipboard-list text-primary me-2"></i>Complete Orders Ledger</h5>
+                        <button onclick="loadOrders()" class="btn btn-luxury-outline btn-sm"><i class="fas fa-rotate me-1"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom-dark align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order Identifier</th>
+                                    <th>Customer & Contact</th>
+                                    <th>Items / Services Booked</th>
+                                    <th>Total & Method</th>
+                                    <th>Lifecycle Status</th>
+                                    <th>Dispatch / Shipping Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr><td colspan="6" class="text-center py-4 text-white"><div class="spinner-border text-primary"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: USERS DIRECTORY -->
+            <div class="tab-pane fade" id="tabUsers">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-white mb-0"><i class="fas fa-users-gear text-info me-2"></i>Registered Users & Vendor Approvals</h5>
+                        <button onclick="loadUsers()" class="btn btn-luxury-outline btn-sm"><i class="fas fa-rotate me-1"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom-dark align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>User / Brand Name</th>
+                                    <th>Email Address</th>
+                                    <th>System Role</th>
+                                    <th>Account State</th>
+                                    <th>Moderation Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="5" class="text-center py-4 text-white"><div class="spinner-border text-primary"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PRODUCTS & SERVICES -->
+            <div class="tab-pane fade" id="tabCatalog">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="glass-card p-4 p-md-5">
+                            <h5 class="fw-bold text-white mb-4"><i class="fas fa-upload text-accent me-2"></i>Publish Listing</h5>
+                            
+                            <form id="addProductForm">
+                                <div class="mb-3">
+                                    <label class="form-label form-label-high">Title / Service Name</label>
+                                    <input type="text" id="pName" class="form-control form-control-luxury" placeholder="e.g. Resin Ocean Clock or Studio Portrait Shoot" required>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-high">Category</label>
+                                        <select id="pCategory" class="form-select form-control-luxury" onchange="toggleCustomCategoryInput('pCategory', 'pCustomCatWrap')" required></select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-high">Price (₹)</label>
+                                        <input type="number" id="pPrice" class="form-control form-control-luxury" placeholder="999.00" min="1" step="0.01" required>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Custom Category Text Input -->
+                                <div id="pCustomCatWrap" class="mb-3 d-none">
+                                    <label class="form-label form-label-high text-info"><i class="fas fa-tag me-1"></i>Type Your Custom Category Name</label>
+                                    <input type="text" id="pCustomCategory" class="form-control form-control-luxury border-info" placeholder="e.g. Wedding Stationery, Ceramic Clay, Neon Sign">
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-high">Stock / Booking Slots</label>
+                                        <input type="number" id="pStock" class="form-control form-control-luxury" value="10" min="0" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-high">Dimensions / Duration</label>
+                                        <input type="text" id="pDim" class="form-control form-control-luxury" placeholder="e.g. 12x18 in or 2 Hours">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-label-high">Material / Deliverables</label>
+                                    <input type="text" id="pMat" class="form-control form-control-luxury" placeholder="e.g. Teak Wood / High-Res JPEGs">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-label-high">Image URL</label>
+                                    <input type="url" id="pImg" class="form-control form-control-luxury" placeholder="https://images.unsplash.com/..." required>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label form-label-high">Description</label>
+                                    <textarea id="pDesc" class="form-control form-control-luxury" rows="3" placeholder="Describe handcrafted details or booking instructions..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-luxury w-100 py-3">
+                                    <i class="fas fa-plus-circle me-1"></i> Publish to Live Storefront
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-4"><i class="fas fa-boxes-stacked text-primary me-2"></i>Active Platform Listings</h5>
+                            <div id="catalogList" class="d-flex flex-column gap-3">
+                                <div class="text-center py-4 text-white"><div class="spinner-border text-primary"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product / Service Modal (With Custom Category Support) -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content auth-card text-white border-0" style="background:#0d1322; border: 1px solid rgba(0,242,254,0.3) !important;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-pen-to-square text-info me-2"></i>Edit Listing Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editPId">
+                        <div class="mb-3">
+                            <label class="form-label form-label-high">Title / Service Name</label>
+                            <input type="text" id="editPName" class="form-control form-control-luxury" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Category</label>
+                                <select id="editPCategory" class="form-select form-control-luxury" onchange="toggleCustomCategoryInput('editPCategory', 'editPCustomCatWrap')" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Price (₹)</label>
+                                <input type="number" id="editPPrice" class="form-control form-control-luxury" min="1" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <!-- Edit Form Custom Category Input -->
+                        <div id="editPCustomCatWrap" class="mb-3 d-none">
+                            <label class="form-label form-label-high text-info"><i class="fas fa-tag me-1"></i>Type Your Custom Category Name</label>
+                            <input type="text" id="editPCustomCategory" class="form-control form-control-luxury border-info" placeholder="e.g. Canvas Painting, Customized Mugs">
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Stock / Booking Slots</label>
+                                <input type="number" id="editPStock" class="form-control form-control-luxury" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Dimensions / Duration</label>
+                                <input type="text" id="editPDim" class="form-control form-control-luxury">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-high">Material / Deliverables</label>
+                            <input type="text" id="editPMat" class="form-control form-control-luxury">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-high">Image URL</label>
+                            <input type="url" id="editPImg" class="form-control form-control-luxury" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label form-label-high">Description</label>
+                            <textarea id="editPDesc" class="form-control form-control-luxury" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-luxury-outline w-50 py-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-luxury w-50 py-3 fw-bold">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispatch & Shipping Modal -->
+    <div class="modal fade" id="shippingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-card text-white border-0" style="background:#0d1322; border: 1px solid rgba(255,255,255,0.2) !important;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-truck-fast text-info me-2"></i>Dispatch & Assign Courier</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="modalOrderId">
+                    <div class="mb-3">
+                        <label class="form-label form-label-high">Courier / Delivery Partner</label>
+                        <input type="text" id="courierName" class="form-control form-control-luxury" placeholder="e.g. Blue Dart, Delhivery, Dunzo, Handover" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label form-label-high">Tracking / AWB Number</label>
+                        <input type="text" id="trackingNumber" class="form-control form-control-luxury" placeholder="e.g. BLU-84920492" required>
+                    </div>
+                    <button type="button" onclick="submitShippingUpdate()" class="btn btn-luxury w-100 py-3">
+                        <i class="fas fa-paper-plane me-1"></i> Mark as Shipped & Notify Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div class="modal fade" id="confirmationTileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content glass-confirm-dialog text-white p-4">
+                <div class="text-center mb-3">
+                    <div class="d-inline-flex p-3 rounded-circle mb-3" id="confirmTileIconBox" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444;">
+                        <i class="fas fa-triangle-exclamation fs-2 text-danger" id="confirmTileIcon"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2" id="confirmTileTitle">Confirm Action</h5>
+                    <p class="text-light small mb-0" id="confirmTileMessage" style="opacity: 0.85; line-height: 1.5;"></p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="btn btn-luxury-outline w-50 py-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger w-50 py-2 fw-bold" id="confirmTileActionBtn">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../customer/js/api.js"></script>
+    <script src="../customer/js/drawer.js"></script>
+    <script>
+        const user = Auth.checkAuth(true);
+        if (!user || (user.role !== 'seller' && user.role !== 'vendor' && user.role !== 'admin')) {
+            window.location.href = '../customer/login.html';
+        }
+
+        const roleBadge = document.getElementById('userBadgeRole');
+        if (roleBadge && user) {
+            roleBadge.innerText = `ROLE: ${user.role.toUpperCase()}`;
+            roleBadge.className = `badge px-3 py-2 fw-bold ${user.role === 'admin' ? 'bg-danger' : 'bg-primary'}`;
+        }
+
+        function showFlashcard(message, type = 'success') {
+            const container = document.getElementById('flashcardContainer');
+            const icons = {
+                success: '<i class="fas fa-check-circle text-success fs-5"></i>',
+                danger: '<i class="fas fa-circle-exclamation text-danger fs-5"></i>',
+                info: '<i class="fas fa-info-circle text-info fs-5"></i>'
+            };
+
+            const card = document.createElement('div');
+            card.className = `flashcard-toast ${type}`;
+            card.innerHTML = `
+                <div>${icons[type] || icons.info}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold small text-uppercase" style="letter-spacing: 0.05em; color: ${type === 'success' ? '#34d399' : (type === 'danger' ? '#f87171' : '#38bdf8')}">
+                        ${type === 'success' ? 'Update Successful' : (type === 'danger' ? 'Notice' : 'Information')}
+                    </div>
+                    <div class="small text-white mt-1" style="line-height: 1.4;">${message}</div>
+                </div>
+            `;
+
+            container.appendChild(card);
+
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(100%)';
+                setTimeout(() => card.remove(), 300);
+            }, 3500);
+        }
+
+        let currentConfirmCallback = null;
+        function showConfirmTile(title, message, btnText, btnColorClass, onConfirm, isDanger = true) {
+            document.getElementById('confirmTileTitle').innerText = title;
+            document.getElementById('confirmTileMessage').innerText = message;
+            
+            const actionBtn = document.getElementById('confirmTileActionBtn');
+            actionBtn.innerText = btnText;
+            actionBtn.className = `btn ${btnColorClass} w-50 py-2 fw-bold`;
+
+            const iconBox = document.getElementById('confirmTileIconBox');
+            const icon = document.getElementById('confirmTileIcon');
+            if (isDanger) {
+                iconBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                iconBox.style.borderColor = '#ef4444';
+                icon.className = 'fas fa-trash-alt fs-2 text-danger';
+            } else {
+                iconBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                iconBox.style.borderColor = '#10b981';
+                icon.className = 'fas fa-shield-check fs-2 text-success';
+            }
+
+            currentConfirmCallback = onConfirm;
+            new bootstrap.Modal(document.getElementById('confirmationTileModal')).show();
+        }
+
+        document.getElementById('confirmTileActionBtn').addEventListener('click', () => {
+            bootstrap.Modal.getInstance(document.getElementById('confirmationTileModal')).hide();
+            if (typeof currentConfirmCallback === 'function') {
+                currentConfirmCallback();
+            }
+        });
+
+        function toggleCustomCategoryInput(selectId, wrapId) {
+            const val = document.getElementById(selectId).value;
+            const wrap = document.getElementById(wrapId);
+            if (val === 'OTHER') {
+                wrap.classList.remove('d-none');
+            } else {
+                wrap.classList.add('d-none');
+            }
+        }
+
+        async function initAdmin() {
+            const commBlock = document.getElementById('adminCommunityMetricsBlock');
+            const userTabNav = document.getElementById('navItemUsers');
+
+            if (user && user.role === 'admin') {
+                if (commBlock) commBlock.classList.remove('d-none');
+                if (userTabNav) userTabNav.classList.remove('d-none');
+                loadUsers();
+            } else {
+                if (commBlock) commBlock.classList.add('d-none');
+                if (userTabNav) userTabNav.classList.add('d-none');
+            }
+
+            loadDashboardStats();
+            loadOrders();
+            loadCategories();
+            loadCatalog();
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/dashboard-stats`, {
+                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const s = data.stats;
+                    if (user && user.role === 'admin') {
+                        document.getElementById('statTotalUsers').innerText = s.total_users || 0;
+                        document.getElementById('statTotalCustomers').innerText = s.total_customers || 0;
+                        document.getElementById('statTotalVendors').innerText = s.total_vendors || 0;
+                        document.getElementById('statPendingVendors').innerText = s.pending_vendors || 0;
+                    }
+                    document.getElementById('statRevenue').innerText = `₹${s.total_sales.toFixed(2)}`;
+                    document.getElementById('statOrders').innerText = s.total_orders;
+                    document.getElementById('statNewOrders').innerText = s.new_orders;
+                    document.getElementById('statLowStock').innerText = s.low_stock_count;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            try {
+                const res = await fetch(`${API_BASE}/admin/orders`, {
+                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(o => {
+                        const items = o.order_items || [];
+                        const customer = o.profiles ? o.profiles.full_name : 'Customer';
+                        const isUPI = o.payment_method === 'UPI';
+                        const shipping = (o.shipping && o.shipping[0]) || {};
+                        const isAdmin = user && user.role === 'admin';
+
+                        return `
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-white fs-6">${o.order_number}</div>
+                                    <small class="text-white" style="opacity: 0.7;">${new Date(o.created_at).toLocaleDateString()}</small>
+                                </td>
+                                <td>
+                                    <div class="text-white fw-bold fs-6">${customer}</div>
+                                    <small class="text-white" style="opacity: 0.7;">${o.shipping_address ? (o.shipping_address.phone || o.shipping_address.city) : ''}</small>
+                                </td>
+                                <td>
+                                    ${items.map(i => `<div class="small text-white fw-semibold">&bull; ${i.product_name} <span style="color: #00f2fe;">(x${i.quantity})</span></div>`).join('')}
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-white fs-6">₹${parseFloat(o.total).toFixed(2)}</div>
+                                    <span class="badge ${o.payment_status === 'Successful' ? 'bg-success' : 'bg-warning text-dark'} small">
+                                        ${o.payment_method}: ${o.payment_status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="form-select form-select-sm form-control-luxury">
+                                        <option value="Pending" ${o.order_status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="Confirmed" ${o.order_status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                                        <option value="Processing" ${o.order_status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                        <option value="Shipped" ${o.order_status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                        <option value="Delivered" ${o.order_status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                        <option value="Cancelled" ${o.order_status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        ${isUPI && o.payment_status !== 'Successful' ? `
+                                            <button onclick="verifyPaymentPrompt('${o.id}', '${o.order_number}')" class="btn btn-sm btn-success" title="Confirm Bank Credit">
+                                                <i class="fas fa-check-circle"></i> Verify Pay
+                                            </button>
+                                        ` : ''}
+                                        <button onclick="openShippingModal('${o.id}')" class="btn btn-sm btn-luxury-outline" title="Dispatch / Add Tracking">
+                                            <i class="fas fa-truck"></i> ${shipping.tracking_number ? 'Update Ship' : 'Ship'}
+                                        </button>
+                                        ${isAdmin ? `
+                                            <button onclick="deleteOrderPrompt('${o.id}', '${o.order_number}')" class="btn btn-sm btn-outline-danger px-2" title="Admin Delete Order">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center empty-table-text"><i class="fas fa-inbox me-2 text-primary"></i>No orders placed yet.</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error loading orders from backend.</td></tr>`;
+            }
+        }
+
+        function verifyPaymentPrompt(orderId, orderNum) {
+            showConfirmTile(
+                'Confirm UPI Credit',
+                `Have you confirmed receipt of transfer for order #${orderNum} on your bank ledger?`,
+                'Confirm & Approve',
+                'btn-success',
+                async () => {
+                    await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Auth.getToken()}`
+                        },
+                        body: JSON.stringify({ payment_status: 'Successful', order_status: 'Confirmed' })
+                    });
+                    showFlashcard(`Payment for Order #${orderNum} verified and confirmed!`, 'success');
+                    initAdmin();
+                },
+                false
+            );
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({ order_status: newStatus })
+            });
+            showFlashcard(`Order status updated to "${newStatus}"`, 'info');
+            initAdmin();
+        }
+
+        function deleteOrderPrompt(orderId, orderNum) {
+            showConfirmTile(
+                'Delete Order Record',
+                `Are you sure you want to delete order #${orderNum}? All related shipping and payment records will be permanently removed.`,
+                'Delete Order',
+                'btn-danger',
+                async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/admin/orders/${orderId}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                        });
+                        const data = await res.json();
+
+                        if (res.ok && data.success) {
+                            showFlashcard(`Order #${orderNum} permanently removed from ledger.`, 'danger');
+                            loadOrders();
+                            loadDashboardStats();
+                        } else {
+                            showFlashcard(data.message || 'Failed to delete order.', 'danger');
+                        }
+                    } catch (err) {
+                        showFlashcard('Server error while deleting order.', 'danger');
+                    }
+                },
+                true
+            );
+        }
+
+        function openShippingModal(orderId) {
+            document.getElementById('modalOrderId').value = orderId;
+            new bootstrap.Modal(document.getElementById('shippingModal')).show();
+        }
+
+        async function submitShippingUpdate() {
+            const orderId = document.getElementById('modalOrderId').value;
+            const courier_name = document.getElementById('courierName').value.trim();
+            const tracking_number = document.getElementById('trackingNumber').value.trim();
+
+            if (!courier_name || !tracking_number) {
+                showFlashcard('Please enter both courier partner and tracking number.', 'danger');
+                return;
+            }
+
+            await fetch(`${API_BASE}/admin/orders/${orderId}/shipping`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({ courier_name, tracking_number })
+            });
+
+            bootstrap.Modal.getInstance(document.getElementById('shippingModal')).hide();
+            showFlashcard(`Shipment dispatched via ${courier_name} (${tracking_number})`, 'success');
+            initAdmin();
+        }
+
+        async function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(u => {
+                        const isVendor = u.role === 'vendor' || u.role === 'seller';
+                        const approved = u.is_approved !== false;
+
+                        return `
+                            <tr>
+                                <td class="fw-bold text-white fs-6">${u.full_name || 'Customer'}</td>
+                                <td class="text-white">${u.email}</td>
+                                <td>
+                                    <span class="badge ${u.role === 'admin' ? 'bg-danger' : (isVendor ? 'bg-primary' : 'bg-secondary')} text-uppercase px-2 py-1">
+                                        ${u.role}
+                                    </span>
+                                </td>
+                                <td>
+                                    ${approved ? 
+                                        `<span class="badge bg-success px-2 py-1"><i class="fas fa-check-circle me-1"></i>Approved</span>` : 
+                                        `<span class="badge bg-warning text-dark px-2 py-1"><i class="fas fa-clock me-1"></i>Pending Approval</span>`
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        ${isVendor ? `
+                                            <button onclick="toggleApproval('${u.id}', ${!approved}, '${(u.full_name || 'Vendor').replace(/'/g, "\\'")}')" class="btn btn-sm ${approved ? 'btn-outline-warning' : 'btn-success'}">
+                                                ${approved ? 'Revoke Access' : 'Approve Vendor'}
+                                            </button>
+                                        ` : ''}
+                                        ${u.role !== 'admin' ? `
+                                            <button onclick="deleteUserPrompt('${u.id}', '${(u.full_name || 'User').replace(/'/g, "\\'")}')" class="btn btn-sm btn-outline-danger" title="Delete User">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        ` : '<span class="text-white small" style="opacity:0.6;">Protected Master Admin</span>'}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center empty-table-text"><i class="fas fa-users-slash me-2 text-info"></i>No users registered yet.</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Super Admin access required.</td></tr>`;
+            }
+        }
+
+        async function toggleApproval(userId, approveState, userName) {
+            await fetch(`${API_BASE}/admin/users/${userId}/approval`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({ is_approved: approveState })
+            });
+            showFlashcard(`Vendor "${userName}" ${approveState ? 'has been Approved' : 'access has been Suspended'}.`, approveState ? 'success' : 'info');
+            loadUsers();
+            loadDashboardStats();
+        }
+
+        function deleteUserPrompt(userId, name) {
+            showConfirmTile(
+                'Delete User Account',
+                `Are you sure you want to permanently delete user "${name}"? This action will remove all user records.`,
+                'Delete Account',
+                'btn-danger',
+                async () => {
+                    await fetch(`${API_BASE}/admin/users/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                    });
+                    showFlashcard(`User "${name}" has been permanently deleted.`, 'danger');
+                    loadUsers();
+                    loadDashboardStats();
+                },
+                true
+            );
+        }
+
+        let platformCategories = [];
+        let catalogListings = [];
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_BASE}/categories`);
+                const data = await res.json();
+                
+                const defaultSimple = [
+                    { id: '1', name: 'Photo Shoots' },
+                    { id: '2', name: 'Photo Frames' },
+                    { id: '3', name: 'Handmade Art' },
+                    { id: '4', name: 'Resin & Crafts' },
+                    { id: '5', name: 'Gifts & Custom Items' },
+                    { id: '6', name: 'Video & Editing' },
+                    { id: '7', name: 'Home Decor' }
+                ];
+
+                platformCategories = (data.success && data.data && data.data.length > 0) ? data.data : defaultSimple;
+                
+                const select = document.getElementById('pCategory');
+                const editSelect = document.getElementById('editPCategory');
+                
+                let optionsHtml = platformCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                optionsHtml += `<option value="OTHER" style="color:#00f2fe; font-weight:bold;">+ Other (Type Custom Category)</option>`;
+
+                if (select) select.innerHTML = optionsHtml;
+                if (editSelect) editSelect.innerHTML = optionsHtml;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadCatalog() {
+            const container = document.getElementById('catalogList');
+            try {
+                // Query my-products with token for multi-vendor isolation
+                const res = await fetch(`${API_BASE}/admin/my-products`, {
+                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                });
+                const data = await res.json();
+
+                if (data.success && data.data.length > 0) {
+                    catalogListings = data.data;
+                    container.innerHTML = data.data.map((p, idx) => `
+                        <div class="glass-card p-3 d-flex align-items-center justify-content-between gap-3 border" style="border-color: rgba(255,255,255,0.2) !important;">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="${p.image_url}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);" alt="${p.name}">
+                                <div>
+                                    <span class="badge badge-luxury mb-1">${p.categories ? p.categories.name : 'Listing'}</span>
+                                    <h6 class="fw-bold text-white mb-1">${p.name}</h6>
+                                    <div class="small" style="color: #06b6d4;">₹${parseFloat(p.price).toFixed(2)} &bull; Slots/Stock: ${p.stock}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button onclick="openEditProductModal(${idx})" class="btn btn-outline-info btn-sm px-3 py-2" title="Edit Listing">
+                                    <i class="fas fa-pen-to-square me-1"></i> Edit
+                                </button>
+                                <button onclick="deleteProductPrompt('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="btn btn-outline-danger btn-sm px-3 py-2" title="Delete Listing">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<div class="text-center py-4 empty-table-text"><i class="fas fa-box-open me-2 text-primary"></i>You haven't published any listings yet. Add your first offering on the left!</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="alert alert-danger">Error loading listings.</div>`;
+            }
+        }
+
+        function openEditProductModal(idx) {
+            const p = catalogListings[idx];
+            if (!p) return;
+
+            document.getElementById('editPId').value = p.id;
+            document.getElementById('editPName').value = p.name || '';
+            document.getElementById('editPCategory').value = p.category_id || (p.categories ? p.categories.id : '');
+            document.getElementById('editPPrice').value = p.price;
+            document.getElementById('editPStock').value = p.stock;
+            document.getElementById('editPDim').value = p.dimensions || '';
+            document.getElementById('editPMat').value = p.material || '';
+            document.getElementById('editPImg').value = p.image_url || '';
+            document.getElementById('editPDesc').value = p.description || '';
+
+            toggleCustomCategoryInput('editPCategory', 'editPCustomCatWrap');
+
+            new bootstrap.Modal(document.getElementById('editProductModal')).show();
+        }
+
+        document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const pId = document.getElementById('editPId').value;
+            const category_id = document.getElementById('editPCategory').value;
+            const custom_category = document.getElementById('editPCustomCategory').value.trim();
+
+            const payload = {
+                name: document.getElementById('editPName').value.trim(),
+                category_id: category_id,
+                custom_category: custom_category,
+                price: parseFloat(document.getElementById('editPPrice').value),
+                stock: parseInt(document.getElementById('editPStock').value),
+                dimensions: document.getElementById('editPDim').value.trim(),
+                material: document.getElementById('editPMat').value.trim(),
+                image_url: document.getElementById('editPImg').value.trim(),
+                description: document.getElementById('editPDesc').value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/products/${pId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    showFlashcard(`Listing "${payload.name}" updated successfully!`, 'success');
+                    loadCategories();
+                    loadCatalog();
+                    loadDashboardStats();
+                } else {
+                    showFlashcard(data.message || 'Failed to update listing.', 'danger');
+                }
+            } catch (err) {
+                showFlashcard('Server error while saving listing.', 'danger');
+            }
+        });
+
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const category_id = document.getElementById('pCategory').value;
+            const custom_category = document.getElementById('pCustomCategory').value.trim();
+
+            const payload = {
+                name: document.getElementById('pName').value.trim(),
+                category_id: category_id,
+                custom_category: custom_category,
+                price: parseFloat(document.getElementById('pPrice').value),
+                stock: parseInt(document.getElementById('pStock').value),
+                dimensions: document.getElementById('pDim').value.trim(),
+                material: document.getElementById('pMat').value.trim(),
+                image_url: document.getElementById('pImg').value.trim(),
+                description: document.getElementById('pDesc').value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showFlashcard(`Listing "${payload.name}" published to live storefront!`, 'success');
+                    document.getElementById('addProductForm').reset();
+                    document.getElementById('pCustomCatWrap').classList.add('d-none');
+                    loadCategories();
+                    loadCatalog();
+                    loadDashboardStats();
+                } else {
+                    showFlashcard(data.message || 'Failed to add item', 'danger');
+                }
+            } catch (err) {
+                showFlashcard('Server error while saving listing.', 'danger');
+            }
+        });
+
+        function deleteProductPrompt(pId, pName) {
+            showConfirmTile(
+                'Delete Platform Listing',
+                `Are you sure you want to delete "${pName}" from the live storefront catalog?`,
+                'Delete Listing',
+                'btn-danger',
+                async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/admin/products/${pId}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                        });
+                        const data = await res.json();
+
+                        if (res.ok && data.success) {
+                            showFlashcard(`"${pName}" has been removed.`, 'danger');
+                            loadCatalog();
+                            loadDashboardStats();
+                        } else {
+                            showFlashcard(data.message || 'Failed to delete listing.', 'danger');
+                        }
+                    } catch (err) {
+                        showFlashcard('Server error while deleting listing.', 'danger');
+                    }
+                },
+                true
+            );
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdmin();
+            if (typeof DrawerEngine !== 'undefined') {
+                DrawerEngine.init(user ? user.role : 'admin');
+            }
+        });
+    </script>
+</body>
+</html>

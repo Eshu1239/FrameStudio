@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller & Creator Portal | FrameStudio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../customer/css/style.css">
+    <style>
+        .auth-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+        }
+        .auth-label {
+            color: #ffffff !important;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+        .auth-subtext {
+            color: #e2e8f0 !important;
+            font-size: 0.95rem;
+        }
+        .auth-input {
+            background-color: #050811 !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+            border-radius: 12px;
+            padding: 0.85rem 1.1rem;
+            font-size: 0.95rem;
+        }
+        .auth-input:focus {
+            background-color: #0b1120 !important;
+            border-color: #00f2fe !important;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4) !important;
+            color: #ffffff !important;
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0px 1000px #050811 inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center py-5">
+    <div class="container" style="max-width: 440px;">
+        <div class="text-center mb-4">
+            <a class="d-inline-flex align-items-center gap-2 text-white text-decoration-none" href="../customer/index.html">
+                <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+                    <i class="fas fa-store text-white"></i>
+                </span>
+                <span class="fs-3 fw-bold brand-font">Seller<span style="color:#06b6d4">Hub</span></span>
+            </a>
+            <p class="auth-subtext mt-2">Sign in to manage orders, services & studio catalog</p>
+        </div>
+
+        <div class="auth-card p-4 p-md-5">
+            <div id="alertBox" class="alert alert-danger d-none py-2 text-center small"></div>
+            
+            <form id="sellerLoginForm">
+                <div class="mb-3">
+                    <label class="form-label auth-label">Seller / Vendor Email</label>
+                    <input type="email" id="email" class="form-control auth-input" placeholder="vendor@framestudio.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label auth-label">Password</label>
+                    <input type="password" id="password" class="form-control auth-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-luxury w-100 py-3 fs-6">
+                    <i class="fas fa-lock me-1"></i> Enter Seller Dashboard
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top" style="border-color: rgba(255,255,255,0.12) !important;">
+                <a href="../customer/index.html" class="auth-subtext small text-decoration-none">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Storefront
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../customer/js/api.js"></script>
+    <script>
+        document.getElementById('sellerLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('alertBox');
+            alertBox.classList.add('d-none');
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    const role = (data.user.role || '').toLowerCase();
+                    
+                    // Allow both 'vendor', 'seller', and 'admin' roles
+                    if (role === 'seller' || role === 'vendor' || role === 'admin') {
+                        Auth.setUser(data.user, data.token);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alertBox.innerText = 'Access denied: This account is registered as a Customer. Please sign in via the Customer login page.';
+                        alertBox.classList.remove('d-none');
+                    }
+                } else {
+                    alertBox.innerText = data.message || 'Invalid email or password';
+                    alertBox.classList.remove('d-none');
+                }
+            } catch (err) {
+                alertBox.innerText = 'Cannot connect to backend server. Make sure Flask is running on port 5000.';
+                alertBox.classList.remove('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

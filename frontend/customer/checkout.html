@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | FrameStudio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .checkout-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .payment-option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .payment-option-card:hover {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        .payment-option-card.selected {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.1);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        /* Flashcard Toast Notification Container */
+        #flashcardContainer {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1099;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .flashcard-toast {
+            pointer-events: auto;
+            min-width: 320px;
+            max-width: 420px;
+            background: rgba(13, 19, 34, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            color: #ffffff;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
+        }
+
+        .flashcard-toast.success { border-color: #10b981; }
+        .flashcard-toast.danger { border-color: #ef4444; }
+        .flashcard-toast.info { border-color: #00f2fe; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .glass-confirm-dialog {
+            background: #0d1322 !important;
+            border: 1px solid rgba(0, 242, 254, 0.3) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Flashcard Toast Notifications Hub -->
+    <div id="flashcardContainer"></div>
+
+    <!-- Sticky Navigation with Left Hamburger Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav sticky-top py-3">
+        <div class="container">
+            <button class="hamburger-btn me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#fsHamburgerDrawer" aria-controls="fsHamburgerDrawer">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="index.html">
+                <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+                    <i class="fas fa-store text-white"></i>
+                </span>
+                <span class="fs-4 fw-bold brand-font">Frame<span style="color:#06b6d4">Studio</span></span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <a href="shop.html" class="nav-link px-2 text-white fw-semibold">Catalog</a>
+                <a href="cart.html" class="btn btn-luxury-outline position-relative px-3 py-2">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+                </a>
+                <ul class="navbar-nav" id="navAuthLinks"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Left Column: Shipping & Payment Details -->
+            <div class="col-lg-7">
+                <div class="checkout-card mb-4">
+                    <h5 class="fw-bold text-white mb-4"><i class="fas fa-location-dot text-info me-2"></i>Shipping / Service Address</h5>
+                    
+                    <form id="checkoutForm">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Full Name</label>
+                                <input type="text" id="custName" class="form-control form-control-luxury" placeholder="e.g. Rahul Sharma" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-label-high">Contact Phone</label>
+                                <input type="tel" id="custPhone" class="form-control form-control-luxury" placeholder="e.g. 9876543210" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-high">Street Address / House / Studio No.</label>
+                            <input type="text" id="custAddress" class="form-control form-control-luxury" placeholder="e.g. Flat 402, Sunshine Heights, MG Road" required>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label form-label-high">City</label>
+                                <input type="text" id="custCity" class="form-control form-control-luxury" placeholder="e.g. Bengaluru" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label form-label-high">State</label>
+                                <input type="text" id="custState" class="form-control form-control-luxury" placeholder="e.g. Karnataka" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label form-label-high">Pincode</label>
+                                <input type="text" id="custPincode" class="form-control form-control-luxury" placeholder="560001" required>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-white mb-3"><i class="fas fa-credit-card text-warning me-2"></i>Select Payment Mode</h5>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="payment-option-card selected" id="optUPI" onclick="selectPaymentMethod('UPI')">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="fas fa-qrcode fs-3 text-info"></i>
+                                        <div>
+                                            <div class="fw-bold text-white">Direct UPI (Instant Pay)</div>
+                                            <small class="text-light" style="opacity:0.8;">Instant zero-fee scan & pay. Verified on bank ledger.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="payment-option-card" id="optCOD" onclick="selectPaymentMethod('COD')">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="fas fa-money-bill-wave fs-3 text-success"></i>
+                                        <div>
+                                            <div class="fw-bold text-white">Cash on Delivery</div>
+                                            <small class="text-light" style="opacity:0.8;">Pay upon physical delivery of items/services.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic UPI QR Scanner Block -->
+                        <div id="upiPaymentSection" class="p-3 rounded-4 mb-4 text-center border border-info" style="background: rgba(0, 242, 254, 0.05);">
+                            <div class="fw-bold text-white mb-2"><i class="fas fa-bolt text-warning me-1"></i>Scan with any UPI App (GPay, PhonePe, Paytm)</div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=eshwarie633@okaxis&pn=FrameStudio&cu=INR" 
+                                 class="p-2 bg-white rounded-3 my-2 shadow" 
+                                 style="width: 170px; height: 170px;" 
+                                 alt="UPI QR Code">
+                            <div class="small text-light mt-1">UPI ID: <strong class="text-info">eshwarie633@okaxis</strong></div>
+                        </div>
+
+                        <button type="submit" id="btnPlaceOrder" class="btn btn-luxury w-100 py-3 fs-6 fw-bold">
+                            <i class="fas fa-shield-check me-2"></i> Confirm & Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="col-lg-5">
+                <div class="checkout-card">
+                    <h5 class="fw-bold text-white mb-4"><i class="fas fa-receipt text-primary me-2"></i>Order Summary</h5>
+                    <div id="checkoutItemsList" class="d-flex flex-column gap-3 mb-4">
+                        <div class="spinner-border text-info mx-auto"></div>
+                    </div>
+
+                    <div class="p-3 rounded-3 border border-secondary mb-4" style="background: rgba(255,255,255,0.02);">
+                        <div class="d-flex justify-content-between text-light small mb-2">
+                            <span>Items Subtotal</span>
+                            <span id="summarySubtotal" class="fw-bold text-white">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-light small mb-2">
+                            <span>Delivery Fee</span>
+                            <span class="text-success fw-bold">FREE</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-light small mb-2 d-none" id="summaryDiscountRow">
+                            <span>Coupon Discount</span>
+                            <span id="summaryDiscount" class="text-warning fw-bold">-₹0.00</span>
+                        </div>
+                        <hr class="border-secondary my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-white fs-5">Final Payable</span>
+                            <span id="summaryTotal" class="fw-bold text-info fs-4">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clean Order Confirmation Flashcard Tile Modal -->
+    <div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content glass-confirm-dialog text-white p-4 text-center">
+                <div class="d-inline-flex p-3 rounded-circle mb-3 mx-auto" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981;">
+                    <i class="fas fa-circle-check fs-1 text-success"></i>
+                </div>
+                <h4 class="fw-bold text-white mb-2">Order Confirmed!</h4>
+                <p class="text-light small mb-3" style="opacity: 0.9; line-height: 1.5;">
+                    Your booking has been received and registered under Order ID: <br>
+                    <strong class="text-info fs-6" id="confirmedOrderId">#FS-ORD-000000</strong>
+                </p>
+                <div class="p-3 rounded-3 mb-4 text-start border border-secondary" style="background: rgba(255,255,255,0.03);">
+                    <div class="small text-light" id="confirmedOrderPayment">Payment: <strong>Direct UPI</strong></div>
+                    <div class="small text-light mt-1">Status: <span class="badge bg-success">Confirmed</span></div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="window.location.href='orders.html'" class="btn btn-luxury w-100 py-3 fw-bold">
+                        <i class="fas fa-box-open me-2"></i> View My Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/drawer.js"></script>
+    <script>
+        const user = Auth.checkAuth(true);
+        let currentPaymentMethod = 'UPI';
+        let verifiedCart = null;
+
+        function showFlashcard(message, type = 'success') {
+            const container = document.getElementById('flashcardContainer');
+            const icons = {
+                success: '<i class="fas fa-check-circle text-success fs-5"></i>',
+                danger: '<i class="fas fa-circle-exclamation text-danger fs-5"></i>',
+                info: '<i class="fas fa-info-circle text-info fs-5"></i>'
+            };
+
+            const card = document.createElement('div');
+            card.className = `flashcard-toast ${type}`;
+            card.innerHTML = `
+                <div>${icons[type] || icons.info}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold small text-uppercase" style="letter-spacing: 0.05em; color: ${type === 'success' ? '#34d399' : (type === 'danger' ? '#f87171' : '#38bdf8')}">
+                        ${type === 'success' ? 'Order Update' : (type === 'danger' ? 'Notice' : 'Information')}
+                    </div>
+                    <div class="small text-white mt-1" style="line-height: 1.4;">${message}</div>
+                </div>
+            `;
+
+            container.appendChild(card);
+
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(100%)';
+                setTimeout(() => card.remove(), 300);
+            }, 3500);
+        }
+
+        function selectPaymentMethod(method) {
+            currentPaymentMethod = method;
+            const optUPI = document.getElementById('optUPI');
+            const optCOD = document.getElementById('optCOD');
+            const upiSection = document.getElementById('upiPaymentSection');
+
+            if (method === 'UPI') {
+                optUPI.classList.add('selected');
+                optCOD.classList.remove('selected');
+                upiSection.classList.remove('d-none');
+            } else {
+                optCOD.classList.add('selected');
+                optUPI.classList.remove('selected');
+                upiSection.classList.add('d-none');
+            }
+        }
+
+        async function loadCheckoutSummary() {
+            const rawCart = Cart.get();
+            if (!rawCart || rawCart.length === 0) {
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            // Autofill user name if available
+            if (user && user.full_name) {
+                document.getElementById('custName').value = user.full_name;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/cart/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: rawCart, coupon: localStorage.getItem('fs_applied_coupon') })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    verifiedCart = data.data;
+                    renderSummary(data.data);
+                } else {
+                    showFlashcard('Failed to verify cart items.', 'danger');
+                }
+            } catch (err) {
+                showFlashcard('Error connecting to backend server.', 'danger');
+            }
+        }
+
+        function renderSummary(cart) {
+            const container = document.getElementById('checkoutItemsList');
+            container.innerHTML = cart.items.map(i => `
+                <div class="d-flex align-items-center justify-content-between gap-2 pb-2 border-bottom border-secondary">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${i.product_image}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px;" alt="${i.product_name}">
+                        <div>
+                            <div class="text-white fw-bold small">${i.product_name}</div>
+                            <div class="text-light small" style="opacity:0.75;">Qty: ${i.quantity} &bull; ₹${i.unit_price.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="text-info fw-bold small">₹${i.subtotal.toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('summarySubtotal').innerText = `₹${cart.subtotal.toFixed(2)}`;
+            document.getElementById('summaryTotal').innerText = `₹${cart.total.toFixed(2)}`;
+
+            if (cart.discount > 0) {
+                document.getElementById('summaryDiscountRow').classList.remove('d-none');
+                document.getElementById('summaryDiscount').innerText = `-₹${cart.discount.toFixed(2)}`;
+            }
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!verifiedCart || !verifiedCart.items || verifiedCart.items.length === 0) {
+                showFlashcard('Your cart is empty.', 'danger');
+                return;
+            }
+
+            const btn = document.getElementById('btnPlaceOrder');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Order...';
+
+            const shippingAddress = {
+                recipient_name: document.getElementById('custName').value.trim(),
+                phone: document.getElementById('custPhone').value.trim(),
+                address_line: document.getElementById('custAddress').value.trim(),
+                city: document.getElementById('custCity').value.trim(),
+                state: document.getElementById('custState').value.trim(),
+                pincode: document.getElementById('custPincode').value.trim()
+            };
+
+            const payload = {
+                items: Cart.get(),
+                payment_method: currentPaymentMethod,
+                address: shippingAddress,
+                coupon_code: localStorage.getItem('fs_applied_coupon') || null
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/orders/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Cart.clear();
+                    localStorage.removeItem('fs_applied_coupon');
+                    
+                    // Show confirmation modal tile
+                    document.getElementById('confirmedOrderId').innerText = `#${data.order.order_number}`;
+                    document.getElementById('confirmedOrderPayment').innerHTML = `Payment: <strong>${currentPaymentMethod}</strong>`;
+                    new bootstrap.Modal(document.getElementById('orderSuccessModal')).show();
+                } else {
+                    showFlashcard(data.message || 'Checkout failed. Please try again.', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-shield-check me-2"></i> Confirm & Place Order';
+                }
+            } catch (err) {
+                showFlashcard('Server connection error during checkout.', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-shield-check me-2"></i> Confirm & Place Order';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCheckoutSummary();
+            const currentUser = Auth.getUser();
+            if (typeof DrawerEngine !== 'undefined') {
+                DrawerEngine.init(currentUser ? currentUser.role : 'customer');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Bag | FrameStudio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cart-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .cart-item-row {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 1.25rem;
+            transition: border-color 0.2s ease;
+        }
+        .cart-item-row:hover {
+            border-color: rgba(0, 242, 254, 0.4);
+        }
+
+        .cart-summary-card {
+            background: #0d1322 !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px;
+            padding: 1.75rem;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-label {
+            color: #cbd5e1 !important;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .qty-btn {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .qty-btn:hover {
+            background: #00f2fe;
+            color: #050811;
+            border-color: #00f2fe;
+        }
+
+        .qty-count {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1rem;
+            min-width: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="index.html">
+                <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+                    <i class="fas fa-store text-white"></i>
+                </span>
+                <span class="fs-4 fw-bold brand-font">Frame<span style="color:#06b6d4">Studio</span></span>
+            </a>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <a href="shop.html" class="nav-link text-white fw-semibold">Collection</a>
+                <a href="cart.html" class="btn btn-luxury-outline position-relative px-3 py-2">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+                </a>
+                <ul class="navbar-nav" id="navAuthLinks"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h3 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+            <i class="fas fa-bag-shopping text-info"></i> Your Shopping Bag
+        </h3>
+
+        <div class="row g-4">
+            <!-- Left: Cart Items List -->
+            <div class="col-lg-8">
+                <div class="cart-card p-4">
+                    <div id="cartItemsContainer" class="d-flex flex-column gap-3">
+                        <!-- Rendered via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary & Coupon -->
+            <div class="col-lg-4">
+                <div class="cart-summary-card">
+                    <h5 class="fw-bold text-white mb-4 pb-2 border-bottom border-secondary">Order Summary</h5>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="summary-label">Items Subtotal</span>
+                        <span class="summary-value" id="subtotalVal">₹0.00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="summary-label">Delivery & Handling</span>
+                        <span class="summary-value text-success" id="shippingVal">FREE</span>
+                    </div>
+
+                    <div id="discountRow" class="d-none justify-content-between align-items-center mb-3 text-info">
+                        <span class="summary-label text-info">Coupon Discount</span>
+                        <span class="summary-value text-info" id="discountVal">-₹0.00</span>
+                    </div>
+
+                    <hr class="border-secondary my-3">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-white fs-5">Estimated Total</span>
+                        <span class="fw-bold fs-4 text-white" id="totalVal">₹0.00</span>
+                    </div>
+
+                    <!-- Coupon Code Box -->
+                    <div class="input-group mb-3">
+                        <input type="text" id="couponInput" class="form-control form-control-luxury text-uppercase" placeholder="PROMO CODE" value="CREATOR10">
+                        <button class="btn btn-luxury-outline px-3" type="button" onclick="applyCouponCode()">Apply</button>
+                    </div>
+                    <div id="couponMsg" class="small mb-3 d-none"></div>
+
+                    <button id="checkoutBtn" onclick="proceedToCheckout()" class="btn btn-luxury w-100 py-3 fs-6 fw-bold">
+                        Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let appliedDiscount = 0;
+        let activeCoupon = null;
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            const items = Cart.getItems();
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="p-4 d-inline-block rounded-circle mb-3" style="background: rgba(99, 102, 241, 0.1);">
+                            <i class="fas fa-bag-shopping fs-1 text-info"></i>
+                        </div>
+                        <h5 class="text-white fw-bold">Your bag is empty</h5>
+                        <p class="text-muted small">Explore our collection of creator works and studio services.</p>
+                        <a href="shop.html" class="btn btn-luxury mt-3 px-4 py-2">Start Exploring</a>
+                    </div>
+                `;
+                document.getElementById('subtotalVal').innerText = '₹0.00';
+                document.getElementById('totalVal').innerText = '₹0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            document.getElementById('checkoutBtn').disabled = false;
+
+            let subtotal = 0;
+            container.innerHTML = items.map((item, index) => {
+                const itemTotal = (parseFloat(item.unit_price) || 0) * (parseInt(item.quantity) || 1);
+                subtotal += itemTotal;
+
+                return `
+                    <div class="cart-item-row d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 w-100">
+                            <img src="${item.product_image || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=300'}" 
+                                 style="width: 75px; height: 75px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);" 
+                                 alt="${item.product_name}">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold text-white mb-1">${item.product_name}</h6>
+                                <div class="text-info fw-semibold small">₹${parseFloat(item.unit_price).toFixed(2)} / unit</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-3 w-100 w-sm-auto">
+                            <!-- Qty buttons -->
+                            <div class="d-flex align-items-center gap-2">
+                                <button onclick="updateQty(${index}, -1)" class="qty-btn" title="Decrease">-</button>
+                                <span class="qty-count">${item.quantity}</span>
+                                <button onclick="updateQty(${index}, 1)" class="qty-btn" title="Increase">+</button>
+                            </div>
+
+                            <div class="fw-bold text-white text-end" style="min-width: 90px;">
+                                ₹${itemTotal.toFixed(2)}
+                            </div>
+
+                            <!-- Remove item button -->
+                            <button onclick="removeItem(${index})" class="btn btn-sm btn-outline-danger px-2 py-1 ms-2" title="Remove item">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate totals
+            const total = Math.max(0, subtotal - appliedDiscount);
+            document.getElementById('subtotalVal').innerText = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('totalVal').innerText = `₹${total.toFixed(2)}`;
+        }
+
+        function updateQty(index, change) {
+            const items = Cart.getItems();
+            if (!items[index]) return;
+
+            items[index].quantity += change;
+            if (items[index].quantity <= 0) {
+                items.splice(index, 1);
+            }
+            Cart.save(items);
+            renderCart();
+        }
+
+        function removeItem(index) {
+            const items = Cart.getItems();
+            if (!items[index]) return;
+            items.splice(index, 1);
+            Cart.save(items);
+            renderCart();
+        }
+
+        async function applyCouponCode() {
+            const code = document.getElementById('couponInput').value.trim();
+            const msgBox = document.getElementById('couponMsg');
+            const items = Cart.getItems();
+            const subtotal = items.reduce((sum, i) => sum + (parseFloat(i.unit_price) * parseInt(i.quantity)), 0);
+
+            if (!code) {
+                msgBox.innerText = 'Please enter a promo code.';
+                msgBox.className = 'small text-danger mb-3';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/coupons/apply`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, subtotal })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    appliedDiscount = parseFloat(data.coupon.discount_amount);
+                    activeCoupon = data.coupon.code;
+                    
+                    document.getElementById('discountRow').classList.remove('d-none');
+                    document.getElementById('discountRow').classList.add('d-flex');
+                    document.getElementById('discountVal').innerText = `-₹${appliedDiscount.toFixed(2)}`;
+                    
+                    msgBox.innerText = `Coupon ${data.coupon.code} applied! Saved ₹${appliedDiscount.toFixed(2)}`;
+                    msgBox.className = 'small text-success mb-3';
+                    renderCart();
+                } else {
+                    appliedDiscount = 0;
+                    document.getElementById('discountRow').classList.add('d-none');
+                    msgBox.innerText = data.message || 'Invalid coupon code';
+                    msgBox.className = 'small text-danger mb-3';
+                    renderCart();
+                }
+            } catch (err) {
+                // Offline/Local discount calculation fallback
+                if (code.toUpperCase() === 'CREATOR10') {
+                    appliedDiscount = subtotal * 0.10;
+                    document.getElementById('discountRow').classList.remove('d-none');
+                    document.getElementById('discountRow').classList.add('d-flex');
+                    document.getElementById('discountVal').innerText = `-₹${appliedDiscount.toFixed(2)}`;
+                    msgBox.innerText = 'CREATOR10 applied (10% off)!';
+                    msgBox.className = 'small text-success mb-3';
+                    renderCart();
+                } else {
+                    msgBox.innerText = 'Invalid coupon code';
+                    msgBox.className = 'small text-danger mb-3';
+                }
+            }
+        }
+
+        function proceedToCheckout() {
+            const user = Auth.getUser();
+            if (!user) {
+                alert('Please sign in to complete your checkout.');
+                window.location.href = 'login.html';
+                return;
+            }
+            window.location.href = 'checkout.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCart();
+        });
+    </script>
+</body>
+</html>
