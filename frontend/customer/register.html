@@ -7,172 +7,108 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .auth-card {
-            background: #0d1322 !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            border-radius: 20px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
-        }
-
-        .auth-label {
-            color: #ffffff !important;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.4rem;
-        }
-
-        .auth-subtext {
-            color: #e2e8f0 !important;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .auth-hint {
-            color: #cbd5e1 !important;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            margin-top: 0.35rem;
-        }
-
-        .auth-input {
-            background-color: #050811 !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            color: #ffffff !important;
-            border-radius: 12px;
-            padding: 0.85rem 1.1rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .auth-input option {
-            background-color: #0d1322;
-            color: #ffffff;
-        }
-
-        .auth-input::placeholder {
-            color: #94a3b8 !important;
-            opacity: 1;
-        }
-
-        .auth-input:focus {
-            background-color: #0b1120 !important;
-            border-color: #00f2fe !important;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4) !important;
-            color: #ffffff !important;
-        }
-
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus {
-            -webkit-text-fill-color: #ffffff !important;
-            -webkit-box-shadow: 0 0 0px 1000px #050811 inset !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-    </style>
 </head>
-<body class="d-flex align-items-center justify-content-center py-5">
-    <div class="container" style="max-width: 480px;">
+<body class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+
+    <div class="auth-card p-4 p-md-5" style="max-width: 460px; width: 100%;">
         <div class="text-center mb-4">
-            <a class="d-inline-flex align-items-center gap-2 text-white text-decoration-none" href="index.html">
+            <a href="index.html" class="d-inline-flex align-items-center gap-2 text-decoration-none text-white mb-2">
                 <span class="p-2 rounded-3" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
                     <i class="fas fa-store text-white"></i>
                 </span>
-                <span class="fs-3 fw-bold brand-font">Frame<span style="color:#06b6d4">Studio</span></span>
+                <span class="fs-4 fw-bold brand-font">Frame<span style="color:#06b6d4">Studio</span></span>
             </a>
-            <p class="auth-subtext mt-2">Join the creator commerce ecosystem</p>
+            <p class="text-light small mb-0" style="opacity: 0.8;">Join the creator commerce ecosystem</p>
         </div>
 
-        <div class="auth-card p-4 p-md-5">
-            <div id="alertBox" class="alert alert-danger d-none py-2 text-center small"></div>
-            <div id="successBox" class="alert alert-success d-none py-2 text-center small"></div>
-            
-            <form id="regForm">
-                <div class="mb-3">
-                    <label class="form-label auth-label">Full Name / Brand Name</label>
-                    <input type="text" id="fullName" class="form-control auth-input" placeholder="e.g. Lumina Arts & Studio" required>
-                </div>
+        <div id="regAlert" class="alert alert-danger d-none py-2 px-3 small rounded-3" role="alert"></div>
 
-                <div class="mb-3">
-                    <label class="form-label auth-label">Email Address</label>
-                    <input type="email" id="email" class="form-control auth-input" placeholder="name@example.com" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label auth-label">Select Account Role</label>
-                    <select id="userRole" class="form-select auth-input" required>
-                        <option value="customer" selected>Customer / Client (Instant Access)</option>
-                        <option value="vendor">Vendor / Agency / Creator (Requires Admin Approval)</option>
-                    </select>
-                    <small class="auth-hint d-block" id="roleHint">Customers get instant access to shop and book services.</small>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label auth-label">Password (Min 6 chars)</label>
-                    <input type="password" id="password" class="form-control auth-input" placeholder="••••••••" minlength="6" required>
-                </div>
-
-                <button type="submit" class="btn btn-luxury w-100 py-3 fs-6">
-                    <i class="fas fa-user-plus me-1"></i> Register Account
-                </button>
-            </form>
-
-            <div class="text-center mt-4 pt-3 border-top" style="border-color: rgba(255,255,255,0.12) !important;">
-                <span class="auth-subtext small">Already registered?</span> 
-                <a href="login.html" class="fw-bold text-decoration-none ms-1" style="color: #00f2fe;">Sign In</a>
+        <form id="registerForm">
+            <div class="mb-3">
+                <label class="form-label form-label-high text-white">Full Name / Brand Name</label>
+                <input type="text" id="regName" class="form-control form-control-luxury" placeholder="Enter your name" required>
             </div>
+
+            <div class="mb-3">
+                <label class="form-label form-label-high text-white">Email Address</label>
+                <input type="email" id="regEmail" class="form-control form-control-luxury" placeholder="name@example.com" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label form-label-high text-white">Select Account Role</label>
+                <select id="regRole" class="form-select form-control-luxury">
+                    <option value="customer" selected>Customer / Art Collector</option>
+                    <option value="vendor">Vendor / Agency / Creator (Requires Admin Approval)</option>
+                </select>
+                <div class="form-text text-light small opacity-75 mt-1">Vendor accounts require verification and Admin approval before logging in.</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label form-label-high text-white">Password (Min 6 chars)</label>
+                <input type="password" id="regPassword" class="form-control form-control-luxury" placeholder="••••••••" minlength="6" required>
+            </div>
+
+            <button type="submit" id="regSubmitBtn" class="btn btn-luxury w-100 py-3 fw-bold">
+                <i class="fas fa-user-plus me-1"></i> Register Account
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <span class="text-light small" style="opacity:0.8;">Already have an account? </span>
+            <a href="login.html" class="small text-info text-decoration-none fw-bold">Sign In</a>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
     <script>
-        document.getElementById('userRole').addEventListener('change', (e) => {
-            const hint = document.getElementById('roleHint');
-            if (e.target.value === 'vendor') {
-                hint.innerText = 'Vendor accounts require verification and Admin approval before logging in.';
-                hint.style.color = '#38bdf8';
-            } else {
-                hint.innerText = 'Customers get instant access to shop and book services.';
-                hint.style.color = '#cbd5e1';
-            }
-        });
+        const API_ENDPOINT = (window.location.hostname.includes('render.com'))
+            ? 'https://framestudio-backend.onrender.com/api'
+            : 'http://localhost:5000/api';
 
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const alertBox = document.getElementById('alertBox');
-            const successBox = document.getElementById('successBox');
-            alertBox.classList.add('d-none');
-            successBox.classList.add('d-none');
+            const alertBox = document.getElementById('regAlert');
+            const btn = document.getElementById('regSubmitBtn');
 
-            const full_name = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('userRole').value;
+            alertBox.classList.add('d-none');
+            alertBox.className = 'alert alert-danger py-2 px-3 small rounded-3';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Account...';
+
+            const full_name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const role = document.getElementById('regRole').value;
+            const password = document.getElementById('regPassword').value;
 
             try {
-                const res = await fetch('http://localhost:5000/api/auth/register', {
+                const res = await fetch(`${API_ENDPOINT}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ full_name, email, password, role })
+                    body: JSON.stringify({ full_name, email, role, password })
                 });
 
                 const data = await res.json();
+
                 if (res.ok && data.success) {
-                    successBox.innerText = data.message;
-                    successBox.classList.remove('d-none');
-                    document.getElementById('regForm').reset();
+                    alertBox.className = 'alert alert-success py-2 px-3 small rounded-3';
+                    alertBox.innerText = data.message || 'Registration successful! Redirecting to login...';
+                    alertBox.classList.remove('d-none');
                     setTimeout(() => {
                         window.location.href = 'login.html';
-                    }, 2500);
+                    }, 2000);
                 } else {
-                    alertBox.innerText = data.message || 'Registration failed';
+                    alertBox.innerText = data.message || 'Registration failed. Please try again.';
                     alertBox.classList.remove('d-none');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus me-1"></i> Register Account';
                 }
             } catch (err) {
-                alertBox.innerText = 'Cannot connect to backend server. Make sure Flask is running on port 5000.';
+                console.error('Registration Error:', err);
+                alertBox.innerText = 'Unable to reach backend server. Please try again.';
                 alertBox.classList.remove('d-none');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus me-1"></i> Register Account';
             }
         });
     </script>
